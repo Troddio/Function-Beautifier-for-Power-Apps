@@ -1,0 +1,79 @@
+/** Prima di eseguire il codice assicurasi che la formula sia scritta su una riga e senza spazi
+ * Per eseguire il codice puoi usare la console del browser */
+
+/**
+ * Funzione per formattare le espressioni PowerApps in modo leggibile.
+ * Questa funzione indentifica le funzioni inline e gestisce le parentesi e le virgole per migliorare la leggibilità.
+ * @param {string} expr - L'espressione PowerApps da formattare.
+ * @return {string} - L'espressione formattata con indentazione e nuove linee.
+**/
+
+function formatExpression(expr) {
+    const indent = (level) => '    '.repeat(level);
+
+    let i = 0;
+    let result = '';
+    let level = 0;
+    const length = expr.length;
+
+    const inlineFunctions = ['coalesce', 'body', 'output', 'outputs'];
+
+    function startsWithAnyFunction(pos) {
+        return inlineFunctions.find(fn => expr.startsWith(fn, pos));
+    }
+
+    function eatChar() {
+        return expr[i++];
+    }
+
+    function eatWhile(condition) {
+        let str = '';
+        while (i < length && condition(expr[i])) {
+            str += eatChar();
+        }
+        return str;
+    }
+
+    function readInlineFunction(fnName) {
+        let str = fnName;
+        i += fnName.length;
+        if (expr[i] === '(') {
+            let openParens = 0;
+            do {
+                const ch = eatChar();
+                str += ch;
+                if (ch === '(') openParens++;
+                else if (ch === ')') openParens--;
+            } while (i < length && openParens > 0);
+        }
+        return str;
+    }
+
+    function parse() {
+        while (i < length) {
+            const fn = startsWithAnyFunction(i);
+            if (fn) {
+                result += readInlineFunction(fn);
+            } else if (expr[i] === ',') {
+                result += ',\n' + indent(level);
+                i++;
+            } else if (expr[i] === '(') {
+                result += '(\n' + indent(++level);
+                i++;
+            } else if (expr[i] === ')') {
+                result += '\n' + indent(--level) + ')';
+                i++;
+            } else {
+                result += eatWhile(c => !['(', ')', ','].includes(c));
+            }
+        }
+    }
+
+    parse();
+    return result.trim();
+}
+
+// Esempio di utilizzo
+const input = `if(equals(add(coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],0),coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],0)),0),0,div(body('Analizza_JSON')?['something_3'],add(coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],0),coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],0))))`;
+
+console.log(formatExpression(input));
