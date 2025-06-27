@@ -1,13 +1,49 @@
-/** Prima di eseguire il codice assicurasi che la formula sia scritta su una riga e senza spazi
+/** prima di eseguire il codice assicurasi che la formula sia scritta su una riga e senza spazi
  * Per eseguire il codice puoi usare la console del browser */
+
+/**
+ * @example
+ * const input = "if(equals(add(coalesce(first(outputs('Elenca_righe:_
+ * Calcoli')?['body/value'])?['something_1'],0),coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],0)),0,div(body('Analizza_JSON')?['something_3'],add(coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],0),coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],0))))";
+ * console.log(formatExpression(input));
+ * Output:
+ * if(
+ *     equals(
+ *          add(
+ *             coalesce(
+ *                 first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],
+ *                 0
+ *             ),
+ *             coalesce(
+ *                 first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],
+ *                 0
+ *             )
+ *         ),
+ *         0,
+ *         div(
+ *             body('Analizza_JSON')?['something_3'],
+ *             add(
+ *                 coalesce(
+ *                     first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],
+ *                     0
+ *                 ),
+ *                 coalesce(
+ *                     first(outputs('Elenca_righe:_Calcoli')?['body/value'])
+ *                         ?['something_2'],
+ *                     0
+ *                 )
+ *             )
+ *         )
+ * )
+ **/
 
 /**
  * Funzione per formattare le espressioni PowerApps in modo leggibile.
  * Questa funzione indentifica le funzioni inline e gestisce le parentesi e le virgole per migliorare la leggibilità.
  * @param {string} expr - L'espressione PowerApps da formattare.
  * @return {string} - L'espressione formattata con indentazione e nuove linee.
+ * @constant inlineFunctions - Un array di funzioni inline da gestire specificamente. Se si desidera aggiungere altre funzioni inline, basta aggiungerle a questo array.
 **/
-
 function formatExpression(expr) {
     const indent = (level) => '    '.repeat(level);
 
@@ -18,14 +54,25 @@ function formatExpression(expr) {
 
     const inlineFunctions = ['coalesce', 'body', 'output', 'outputs'];
 
+    /** * Controlla se l'espressione inizia con una delle funzioni inline specificate.
+     * * @param {number} pos - La posizione corrente nell'espressione.
+     * * @returns {string|undefined} - Il nome della funzione inline se trovata, altrimenti undefined.
+    **/
     function startsWithAnyFunction(pos) {
         return inlineFunctions.find(fn => expr.startsWith(fn, pos));
     }
 
+    /** * Legge il carattere corrente e lo incrementa l'indice.
+     * * @returns {string} - Il carattere corrente dell'espressione.
+     * **/
     function eatChar() {
         return expr[i++];
     }
 
+    /** * Legge i caratteri fino a quando la condizione è vera.
+     * * @param {function} condition - Una funzione che prende un carattere e restituisce true se il carattere deve essere letto.
+     * * @returns {string} - La stringa dei caratteri letti.
+    **/
     function eatWhile(condition) {
         let str = '';
         while (i < length && condition(expr[i])) {
@@ -34,6 +81,11 @@ function formatExpression(expr) {
         return str;
     }
 
+    /** * Legge una funzione inline e la restituisce come stringa.
+     * * Se la funzione inline ha parentesi, legge tutto il contenuto fino alla chiusura della parentesi.
+     * * @param {string} fnName - Il nome della funzione inline da leggere.
+     * * @returns {string} - La stringa della funzione inline con il suo contenuto.
+     **/
     function readInlineFunction(fnName) {
         let str = fnName;
         i += fnName.length;
@@ -49,6 +101,12 @@ function formatExpression(expr) {
         return str;
     }
 
+    /**
+     * Funzione principale che analizza l'espressione e costruisce la stringa formattata.
+     * La funzione gestisce le funzioni inline, le parentesi e le virgole per migliorare la leggibilità.
+     * Utilizza un ciclo per scorrere l'espressione e applica l'indentazione e le nuove linee dove necessario.
+     * @returns {void}
+     **/
     function parse() {
         while (i < length) {
             const fn = startsWithAnyFunction(i);
