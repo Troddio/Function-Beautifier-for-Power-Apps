@@ -2,42 +2,6 @@
  * Per eseguire il codice puoi usare la console del browser */
 
 /**
- * @example
- * const input = "if(equals(add(coalesce(first(outputs('Elenca_righe:_
- * Calcoli')?['body/value'])?['something_1'],0),coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],0)),0,div(body('Analizza_JSON')?['something_3'],add(coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],0),coalesce(first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],0))))";
- * console.log(formatExpression(input));
- * Output:
- * if(
- *     equals(
- *          add(
- *             coalesce(
- *                 first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],
- *                 0
- *             ),
- *             coalesce(
- *                 first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_2'],
- *                 0
- *             )
- *         ),
- *         0,
- *         div(
- *             body('Analizza_JSON')?['something_3'],
- *             add(
- *                 coalesce(
- *                     first(outputs('Elenca_righe:_Calcoli')?['body/value'])?['something_1'],
- *                     0
- *                 ),
- *                 coalesce(
- *                     first(outputs('Elenca_righe:_Calcoli')?['body/value'])
- *                         ?['something_2'],
- *                     0
- *                 )
- *             )
- *         )
- * )
- **/
-
-/**
  * Funzione per formattare le espressioni PowerApps in modo leggibile.
  * Questa funzione indentifica le funzioni inline e gestisce le parentesi e le virgole per migliorare la leggibilità.
  * @param {string} expr - L'espressione PowerApps da formattare.
